@@ -137,6 +137,13 @@ def add_house(user_id):
     return house_schema.jsonify(new_house)
 
 
+@app.route('/houses', methods=['GET'])
+def get_houses():
+    all_houses = House.query.all()
+    result = houses_schema.dump(all_houses)
+    return jsonify(result)
+
+
 # Run server
 if __name__ == '__main__':
     app.run(debug=True)
