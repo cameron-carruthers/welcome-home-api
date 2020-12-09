@@ -36,7 +36,7 @@ class User(db.Model):
         'House', secondary=favorites, lazy='subquery', backref=db.backref('followers', lazy=True)
     )
 
-    def __init__(self, name, email, password):
+    def __init__(self, email):
         self.email = email
 
 
@@ -107,9 +107,9 @@ def add_user():
     return user_schema.jsonify(new_user)
 
 
-@app.route('/user/<email>', methods=['GET'])
-def get_user(email):
-    user = User.query.get(email)
+@app.route('/user/<id>', methods=['GET'])
+def get_user(id):
+    user = User.query.get(id)
     return houses_schema.jsonify(user.favorites)
 
 
