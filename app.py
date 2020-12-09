@@ -64,6 +64,34 @@ class House(db.Model):
         self.thumbnail = thumbnail
 
 
+# Schemas
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'email')
+
+
+user_schema = UserSchema()
+
+
+class FavoriteSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'user_id', 'house_id')
+
+
+favorite_schema = FavoriteSchema()
+favorites_schema = FavoriteSchema(many=True)
+
+
+class HouseSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'price', 'city', 'state_code', 'bedrooms',
+                  'bathrooms', 'property_type', 'thumbnail')
+
+
+house_schema = HouseSchema()
+houses_schema = HouseSchema(many=True)
+
+
 # Run server
 if __name__ == '__main__':
     app.run(debug=True)
