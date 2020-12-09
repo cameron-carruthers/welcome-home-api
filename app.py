@@ -1,22 +1,26 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_oidc import OpenIDConnect
+from flask_cors import CORS
 import os
 
 # Init app
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# Database
+app.config.update({
+    'OIDC_CLIENT_SECRETS': './client_secrets.json',
+    'OIDC_RESOURCE_SERVER_ONLY': True
+})
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
     os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Init db
 db = SQLAlchemy(app)
-
-# Init ma
 ma = Marshmallow(app)
+oidc = OpenIDConnect(app)
+CORS(app)
 
 # Models
 favorites = db.Table('favorites',
@@ -94,12 +98,15 @@ houses_schema = HouseSchema(many=True)
 
 # Routes
 
+# g.oidc_token_info['sub'] is the user's email address
+
 @app.route('/user', methods=['POST'])
+@oidc.accept_token(True)
 def add_user():
 
-    email = request.json['email']
+    email = request.json[g.oidc_token_info['sub']]
 
-    new_user = User(email)
+    new_user = User(g.oidc_token_info['sub'])
 
     db.session.add(new_user)
     db.session.commit()
@@ -107,13 +114,15 @@ def add_user():
     return user_schema.jsonify(new_user)
 
 
-@app.route('/user/<id>', methods=['GET'])
-def get_user(id):
-    user = User.query.get(id)
+@app.route('/favorites', methods=['GET'])
+@oidc.accept_token(True)
+def get_user():
+    user = User.query.get(g.oidc_token_info['sub'])
     return houses_schema.jsonify(user.favorites)
 
 
-@app.route('/favorite/<user_id>', methods=['POST'])
+@app.route('/favorite', methods=['POST'])
+@oidc.accept_token(True)
 def add_house(user_id):
 
     property_id = request.json['property_id']
@@ -128,7 +137,7 @@ def add_house(user_id):
     new_house = House(property_id, price, city, state_code,
                       beds, baths, prop_type, thumbnail)
 
-    user = User.query.get(user_id)
+    user = User.query.get(g.oidc_token_info['sub'])
 
     db.session.add(new_house)
     new_house.followers.append(user)
@@ -137,6 +146,7 @@ def add_house(user_id):
     return house_schema.jsonify(new_house)
 
 
+# For testing - will be removed later
 @app.route('/houses', methods=['GET'])
 def get_houses():
     all_houses = House.query.all()
