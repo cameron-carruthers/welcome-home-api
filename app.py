@@ -92,6 +92,21 @@ house_schema = HouseSchema()
 houses_schema = HouseSchema(many=True)
 
 
+# Routes
+
+@app.route('/user', methods=['POST'])
+def add_user():
+
+    email = request.json['email']
+
+    new_user = User(email)
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return user_schema.jsonify(new_user)
+
+
 # Run server
 if __name__ == '__main__':
     app.run(debug=True)
