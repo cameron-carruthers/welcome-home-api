@@ -107,6 +107,12 @@ def add_user():
     return user_schema.jsonify(new_user)
 
 
+@app.route('/user/<email>', methods=['GET'])
+def get_user(email):
+    user = User.query.get(email)
+    return houses_schema.jsonify(user.favorites)
+
+
 # Run server
 if __name__ == '__main__':
     app.run(debug=True)
