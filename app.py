@@ -53,14 +53,14 @@ class House(db.Model):
     prop_type = db.Column(db.String(200))
     thumbnail = db.Column(db.String(200))
 
-    def __init__(self, property_id, price, city, state_code, bedrooms, bathrooms, property_type, thumbnail):
+    def __init__(self, property_id, price, city, state_code, beds, baths, prop_type, thumbnail):
         self.property_id = property_id
         self.price = price
         self.city = city
         self.state_code = state_code
-        self.bedrooms = bedrooms
-        self.bathrooms = bathrooms
-        self.property_type = property_type
+        self.beds = beds
+        self.baths = baths
+        self.prop_type = prop_type
         self.thumbnail = thumbnail
 
 
@@ -84,8 +84,8 @@ favorites_schema = FavoriteSchema(many=True)
 
 class HouseSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'price', 'city', 'state_code', 'bedrooms',
-                  'bathrooms', 'property_type', 'thumbnail')
+        fields = ('id', 'property_id', 'price', 'city', 'state_code', 'beds',
+                  'baths', 'prop_type', 'thumbnail')
 
 
 house_schema = HouseSchema()
