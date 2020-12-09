@@ -113,6 +113,30 @@ def get_user(id):
     return houses_schema.jsonify(user.favorites)
 
 
+@app.route('/favorite/<user_id>', methods=['POST'])
+def add_house(user_id):
+
+    property_id = request.json['property_id']
+    price = request.json['price']
+    city = request.json['city']
+    state_code = request.json['state_code']
+    beds = request.json['beds']
+    baths = request.json['baths']
+    prop_type = request.json['prop_type']
+    thumbnail = request.json['thumbnail']
+
+    new_house = House(property_id, price, city, state_code,
+                      beds, baths, prop_type, thumbnail)
+
+    user = User.query.get(user_id)
+
+    db.session.add(new_house)
+    new_house.followers.append(user)
+    db.session.commit()
+
+    return house_schema.jsonify(new_house)
+
+
 # Run server
 if __name__ == '__main__':
     app.run(debug=True)
