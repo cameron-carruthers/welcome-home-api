@@ -103,9 +103,6 @@ houses_schema = HouseSchema(many=True)
 @app.route('/user', methods=['POST'])
 @oidc.accept_token(True)
 def add_user():
-
-    email = request.json[g.oidc_token_info['sub']]
-
     new_user = User(g.oidc_token_info['sub'])
 
     db.session.add(new_user)
